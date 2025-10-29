@@ -1,4 +1,4 @@
-// === Configuración de Firebase ===
+// === CONFIGURACIÓN FIREBASE ===
 const firebaseConfig = {
   apiKey: "AIzaSyCrYYpV9IxUn-1Lmi7-spVxEtGucuceZF8",
   authDomain: "cristianstore-fecb3.firebaseapp.com",
@@ -9,20 +9,11 @@ const firebaseConfig = {
   appId: "1:763794005453:web:a92a235f92fdf196d9b884"
 };
 
-// Inicializa Firebase
+// === INICIALIZA FIREBASE ===
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-// === PRUEBA DE LECTURA ===
-db.collection("usuarios").get().then((snapshot) => {
-  console.log("✅ Documentos encontrados en la colección 'usuarios':");
-  snapshot.forEach((doc) => {
-    console.log("🟢 ID:", doc.id, "=>", doc.data());
-  });
-}).catch((error) => {
-  console.error("❌ Error leyendo la colección:", error);
-});
 
-// === LOGIN ===
+// === FUNCIÓN DE LOGIN ===
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -30,8 +21,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value.trim();
 
   try {
-    // Buscar el documento con el mismo ID que el usuario
-    const userDoc = await db.collection("usuarios").doc(username).get();
+    // Buscar documento con ID = username (por ejemplo, "Cristianstore")
+    const userDoc = await db.collection("users").doc(username).get();
 
     if (!userDoc.exists) {
       alert("❌ Usuario no encontrado");
@@ -40,16 +31,23 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
     const userData = userDoc.data();
 
-    if (userData.password === password) {
-      // Guardar la sesión local
-      localStorage.setItem("usuario", JSON.stringify(userData));
-      alert(`✅ Bienvenido ${userData.user}!`);
-      window.location.href = "panel.html";
-    } else {
+    // Validar contraseña
+    if (userData.Password !== password) {
       alert("⚠️ Contraseña incorrecta");
+      return;
     }
+
+    // Login exitoso
+    alert(`✅ Bienvenido a Cristian Shop, ${username}!`);
+
+    // Guardar sesión en localStorage
+    localStorage.setItem("currentUser", JSON.stringify(userData));
+
+    // Redirigir al panel
+    window.location.href = "panel.html";
+
   } catch (error) {
     console.error("Error al iniciar sesión:", error);
-    alert("Ocurrió un error al iniciar sesión.");
+    alert("🚨 Error al conectar con la base de datos");
   }
 });
