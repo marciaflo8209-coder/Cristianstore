@@ -153,3 +153,44 @@ function logout() {
   localStorage.removeItem("usuarioActual");
   window.location.href = "index.html";
     }
+/* === FUNCIONES NUEVAS OWNER === */
+function crearUsuario() {
+  const nombre = document.getElementById("nuevoUsuario").value.trim();
+  const pass = document.getElementById("nuevoPassword").value.trim();
+  const saldo = parseInt(document.getElementById("nuevoSaldo").value);
+  const rol = document.getElementById("nuevoRol").value;
+
+  if (!nombre || !pass || isNaN(saldo)) {
+    alert("Completa todos los campos correctamente.");
+    return;
+  }
+
+  if (usuarios[nombre]) {
+    alert("Ese usuario ya existe.");
+    return;
+  }
+
+  usuarios[nombre] = { password: pass, saldo: saldo, rol: rol };
+  alert(`✅ Usuario ${nombre} creado con éxito.`);
+  cargarOwnerPanel();
+}
+
+function añadirSaldo() {
+  const usuario = document.getElementById("usuarioSaldo").value.trim();
+  const cantidad = parseInt(document.getElementById("cantidadSaldo").value);
+
+  if (!usuarios[usuario]) return alert("Usuario no encontrado.");
+  usuarios[usuario].saldo += cantidad;
+  alert(`💰 Añadido $${cantidad} a ${usuario}.`);
+  cargarOwnerPanel();
+}
+
+function quitarSaldo() {
+  const usuario = document.getElementById("usuarioSaldo").value.trim();
+  const cantidad = parseInt(document.getElementById("cantidadSaldo").value);
+
+  if (!usuarios[usuario]) return alert("Usuario no encontrado.");
+  usuarios[usuario].saldo = Math.max(0, usuarios[usuario].saldo - cantidad);
+  alert(`💸 Quitado $${cantidad} a ${usuario}.`);
+  cargarOwnerPanel();
+    }
