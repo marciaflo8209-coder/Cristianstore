@@ -12,6 +12,15 @@ const firebaseConfig = {
 // Inicializa Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+// === PRUEBA DE LECTURA ===
+db.collection("usuarios").get().then((snapshot) => {
+  console.log("✅ Documentos encontrados en la colección 'usuarios':");
+  snapshot.forEach((doc) => {
+    console.log("🟢 ID:", doc.id, "=>", doc.data());
+  });
+}).catch((error) => {
+  console.error("❌ Error leyendo la colección:", error);
+});
 
 // === LOGIN ===
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
