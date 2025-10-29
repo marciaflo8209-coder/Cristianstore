@@ -1,71 +1,47 @@
-  
 // =======================
-// CristianShop - Script principal
+// CristianShop - Script de login
 // =======================
 
-// Cuentas por defecto
-let usuarios = JSON.parse(localStorage.getItem("usuarios")) || {
-  "Cristianstore": {
-    password: "Cristian123",
-    saldo: 999999,
-    rol: "owner"
-  },
-  "FelipeStore": {
-    password: "123felipe30",
-    saldo: 9999,
-    rol: "owner"
-  }
-};
+// Crear usuarios iniciales si no existen
+if (!localStorage.getItem("usuarios")) {
+  const usuariosIniciales = {
+    "Cristianstore": {
+      password: "Cristian123",
+      saldo: 999999,
+      rol: "owner"
+    },
+    "FelipeStore": {
+      password: "123felipe30",
+      saldo: 9999,
+      rol: "owner"
+    }
+  };
+  localStorage.setItem("usuarios", JSON.stringify(usuariosIniciales));
+}
 
-// Guardar en localStorage si no existen
-localStorage.setItem("usuarios", JSON.stringify(usuarios));
-
-/* === FUNCIÓN DE LOGIN === */
+// Función principal de login
 function login() {
-  const user = document.getElementById("username").value.trim();
-  const pass = document.getElementById("password").value.trim();
+  const userInput = document.getElementById("username").value.trim();
+  const passInput = document.getElementById("password").value.trim();
 
-  if (!user || !pass) {
-    alert("⚠️ Ingresa tu usuario y contraseña.");
+  if (userInput === "" || passInput === "") {
+    alert("⚠️ Ingresa usuario y contraseña.");
     return;
   }
 
-  const usuariosData = JSON.parse(localStorage.getItem("usuarios")) || {};
+  const usuarios = JSON.parse(localStorage.getItem("usuarios")) || {};
 
-  if (usuariosData[user] && usuariosData[user].password === pass) {
-    localStorage.setItem("usuarioActivo", user);
-    alert("✅ Bienvenido a CristianShop, " + user + "!");
-    window.location.href = "panel.html"; // Redirige al panel
+  if (usuarios[userInput] && usuarios[userInput].password === passInput) {
+    localStorage.setItem("usuarioActivo", userInput);
+    alert(`✅ Bienvenido ${userInput} a CristianShop`);
+    window.location.href = "panel.html";
   } else {
     alert("❌ Usuario o contraseña incorrectos.");
   }
 }
 
-/* === FUNCIÓN DE LOGOUT === */
-function logout() {
-  localStorage.removeItem("usuarioActivo");
-  window.location.href = "index.html";
-}
-
-/* === VERIFICAR SESIÓN ACTIVA === */
-function verificarSesion() {
-  const usuarioActivo = localStorage.getItem("usuarioActivo");
-  if (!usuarioActivo) {
-    window.location.href = "index.html";
-  }
-}
-
-/* === MOSTRAR DATOS DEL USUARIO EN PANEL === */
-function mostrarUsuarioPanel() {
-  const usuarioActivo = localStorage.getItem("usuarioActivo");
-  const data = JSON.parse(localStorage.getItem("usuarios")) || {};
-  if (!usuarioActivo || !data[usuarioActivo]) return;
-
-  const usuario = data[usuarioActivo];
-  document.getElementById("nombreUsuario").textContent = usuarioActivo;
-  document.getElementById("saldoUsuario").textContent = usuario.saldo.toFixed(2);
-
-  if (usuario.rol === "owner") {
-    document.getElementById("ownerPanelBtn").style.display = "block";
-  }
-}
+// Vincular botón
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("loginBtn");
+  if (btn) btn.addEventListener("click", login);
+});
