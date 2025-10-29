@@ -1,25 +1,46 @@
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+// === Configuración de Firebase ===
+const firebaseConfig = {
+  apiKey: "AIzaSyCrYYpV9IxUn-1Lmi7-spVxEtGucuceZF8",
+  authDomain: "cristianstore-fecb3.firebaseapp.com",
+  databaseURL: "https://cristianstore-fecb3-default-rtdb.firebaseio.com/",
+  projectId: "cristianstore-fecb3",
+  storageBucket: "cristianstore-fecb3.appspot.com",
+  messagingSenderId: "763794005453",
+  appId: "1:763794005453:web:a92a235f92fdf196d9b884"
+};
 
-const db = getFirestore();
+// Inicializa Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
+// === LOGIN ===
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const usuario = document.getElementById("usuario").value;
-  const password = document.getElementById("password").value;
 
-  const docRef = doc(db, "usuarios", usuario);
-  const docSnap = await getDoc(docRef);
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    if (data.password === password) {
-      localStorage.setItem("usuario", usuario);
-      localStorage.setItem("rol", data.rol);
+  try {
+    // Buscar el documento con el mismo ID que el usuario
+    const userDoc = await db.collection("usuarios").doc(username).get();
+
+    if (!userDoc.exists) {
+      alert("❌ Usuario no encontrado");
+      return;
+    }
+
+    const userData = userDoc.data();
+
+    if (userData.password === password) {
+      // Guardar la sesión local
+      localStorage.setItem("usuario", JSON.stringify(userData));
+      alert(`✅ Bienvenido ${userData.user}!`);
       window.location.href = "panel.html";
     } else {
-      alert("Contraseña incorrecta");
+      alert("⚠️ Contraseña incorrecta");
     }
-  } else {
-    alert("Usuario no encontrado");
+  } catch (error) {
+    console.error("Error al iniciar sesión:", error);
+    alert("Ocurrió un error al iniciar sesión.");
   }
 });
