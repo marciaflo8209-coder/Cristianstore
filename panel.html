@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CristianShop - Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="panel-body">
+  <header class="header">
+    <h1 class="neon-header">Bienvenido a <span>CristianShop</span></h1>
+    <div class="user-info">
+      <p><strong>Usuario:</strong> <span id="userName"></span></p>
+      <p><strong>Saldo:</strong> $<span id="userBalance"></span></p>
+      <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="main-panel">
+    <h2 class="section-title">🛍️ Productos disponibles</h2>
+    <div id="productsContainer" class="products-container"></div>
+
+    <div id="ownerPanelSection" class="owner-section" style="display:none;">
+      <button class="admin-btn" onclick="openOwnerPanel()">👑 Panel de Administración</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 CristianShop - Todos los derechos reservados</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
