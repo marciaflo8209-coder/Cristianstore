@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cristian Store - Panel de Administración</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="firebase.js"></script>
+</head>
+<body class="admin-body">
+
+  <header class="header">
+    <h1 class="neon-title">Panel de Administración</h1>
+    <button id="volverBtn">Volver al panel</button>
+  </header>
+
+  <section class="admin-section">
+    <h2>Usuarios registrados</h2>
+    <select id="userSelect"></select>
+
+    <div class="admin-actions">
+      <button id="addSaldoBtn">Añadir saldo</button>
+      <button id="removeSaldoBtn">Quitar saldo</button>
+      <button id="crearCuentaBtn">Crear cuenta</button>
+      <button id="borrarCuentaBtn">Borrar cuenta</button>
+      <button id="cambiarRolBtn">Poner/Quitar admin</button>
+    </div>
+
+    <h3 id="totalVentas"></h3>
+  </section>
+
+  <script type="module">
+    import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+    import { app } from "./firebase.js";
+
+    const db = getDatabase(app);
+    const usuario = localStorage.getItem("usuario");
+
+    if (usuario !== "Cristianstore") {
+      alert("❌ Acceso denegado.");
+      window.location.href = "panel.html";
+    }
+
+    const userSelect = document.getElementById("userSelect");
+    const totalVentas = document.getElementById("totalVentas");
+
+    async function cargarUsuarios() {
+      const usuariosRef = ref(db, "usuarios");
+      const snapshot = await get(usuariosRef);
+
+      userSelect.innerHTML = "";
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        Object.keys(data).forEach(u => {
+          const option = document.createElement("option");
+          option.value = u;
+          option.textContent = `${u} - $${data[u].saldo.toFixed(2)} (${data[u].rol})`;
+          userSelect.appendChild(option);
+        });
+      }
+    }
+
+    document.getElementById("addSaldoBtn").addEventListener("click", async () => {
+      const user = userSelect.value;
+      const cantidad = parseFloat(prompt("¿Cuánto saldo deseas añadir?"));
+      if (isNaN(cantidad)) return;
+
+      const userRef = ref(db, "usuarios/" + user);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const saldoActual = snapshot.val().saldo;
+        await update(userRef, { saldo: saldoActual + cantidad });
+        alert(`Saldo actualizado: +$${cantidad}`);
+        cargarUsuarios();
+      }
+    });
+
+    document.getElementById("removeSaldoBtn").addEventListener("click", async () => {
+      const user = userSelect.value;
+      const cantidad = parseFloat(prompt("¿Cuánto saldo deseas quitar?"));
+      if (isNaN(cantidad)) return;
+
+      const userRef = ref(db, "usuarios/" + user);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const saldoActual = snapshot.val().saldo;
+        await update(userRef, { saldo: saldoActual - cantidad });
+        alert(`Saldo actualizado: -$${cantidad}`);
+        cargarUsuarios();
+      }
+    });
+
+    document.getElementById("crearCuentaBtn").addEventListener("click", async () => {
+      const nombre = prompt("Nombre de usuario:");
+      const password = prompt("Contraseña:");
+      if (!nombre || !password) return;
+
+      await set(ref(db, "usuarios/" + nombre), {
+        password: password,
+        saldo: 0,
+        rol: "cliente"
+      });
+      alert("✅ Cuenta creada correctamente");
+      cargarUsuarios();
+    });
+
+    document.getElementById("borrarCuentaBtn").addEventListener("click", async () => {
+      const user = userSelect.value;
+      if (confirm(`¿Seguro que deseas eliminar la cuenta de ${user}?`)) {
+        await remove(ref(db, "usuarios/" + user));
+        alert("Cuenta eliminada.");
+        cargarUsuarios();
+      }
+    });
+
+    document.getElementById("cambiarRolBtn").addEventListener("click", async () => {
+      const user = userSelect.value;
+      const userRef = ref(db, "usuarios/" + user);
+      const snapshot = await get(userRef);
+
+      if (snapshot.exists()) {
+        const rolActual = snapshot.val().rol;
+        const nuevoRol = rolActual === "admin" ? "cliente" : "admin";
+        await update(userRef, { rol: nuevoRol });
+        alert(`Rol cambiado a ${nuevoRol}`);
+        cargarUsuarios();
+      }
+    });
+
+    document.getElementById("volverBtn").addEventListener("click", () => {
+      window.location.href = "panel.html";
+    });
+
+    cargarUsuarios();
+  </script>
+</body>
+</html>
